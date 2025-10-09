@@ -1,0 +1,12 @@
+User Action → Recipe Check → Cache Check → Image Queue → API Call → Storage → Log → Spend Update → Response
+
+Detailed Flow:
+1. User requests recipe.
+2. Check recipes.image_id → if exists, serve cached image.
+3. If missing → add job to IMAGE_QUEUE.
+4. Worker checks system_limits.allow_generation & spend threshold.
+5. If within budget → generate image.
+6. Save image to CDN, log cost in image_gen_log.
+7. Increment system_limits.current_spend and user_image_quota.images_generated.
+8. If spend >= max_monthly_spend → set allow_generation=false.
+9. Return generated or placeholder image to user.

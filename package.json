@@ -1,0 +1,7 @@
+{
+  "name": "ai-meal-prep-assistant",
+  "private": true,
+  "scripts": {
+    "db:reset": "supabase db reset && supabase db push"
+  }
+}
