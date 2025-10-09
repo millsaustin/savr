@@ -4,6 +4,7 @@ import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";
 import { hashString } from "../../../packages/shared/src/utils/hash.ts";
 import { mealResponseSchema } from "../../../packages/shared/src/validation/mealSchema.ts";
 import { generateMealPlan } from "../../../packages/shared/src/utils/openai.ts";
+import { jsonResponse, errorResponse } from "../../../packages/shared/src/utils/http.ts";
 
 const supabase = createClient(
   Deno.env.get("SUPABASE_URL")!,
@@ -46,7 +47,7 @@ serve(async (req) => {
         .eq("user_id", user.id)
         .order("created_at", { ascending: false })
         .limit(parsed.meals);
-      return new Response(JSON.stringify({ cache_hit: true, meals: recipes }), { status: 200 });
+      return jsonResponse({ cache_hit: true, meals: recipes });
     }
 
     const aiMeals = await generateMealPlan(parsed);
@@ -73,10 +74,11 @@ serve(async (req) => {
       cost_estimate: aiMeals.cost || 0
     });
 
-    return new Response(JSON.stringify({ cache_hit: false, meals: validMeals }), { status: 200 });
+    return jsonResponse({ cache_hit: false, meals: validMeals });
 
   } catch (err) {
     console.error(err);
-    return new Response(JSON.stringify({ error: err.message }), { status: 400 });
+    const message = err instanceof Error ? err.message : String(err);
+    return errorResponse("BAD_REQUEST", message);
   }
 });

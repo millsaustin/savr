@@ -40,3 +40,41 @@ Notes:
 - Requires user authentication.
 - Validates input with Zod.
 - Returns cached plans when available.
+
+### /api/meals/from-pantry
+POST with Authorization: Bearer <JWT>
+
+Body:
+```json
+{
+  "meals": 3,
+  "include_images": false
+}
+```
+
+Response:
+```json
+{
+  "meals": [...],
+  "grocery_list": [...]
+}
+```
+
+Notes:
+- Uses items stored in user_pantry.
+- Suggests minimal extra ingredients.
+- Requires authentication.
+- Validates all data and enforces RLS.
+
+## Phase 1 Verification Checklist
+- [x] Supabase local runs (`supabase start`)
+- [x] Migrations applied successfully
+- [x] JWT auth verified
+- [x] /api/meals/generate returns structured data
+- [x] /api/meals/from-pantry uses stored pantry
+- [x] Logs redact sensitive data
+- [x] Zod validation in place
+- [x] Unit tests pass
+
+
+test
