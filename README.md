@@ -66,6 +66,32 @@ Notes:
 - Requires authentication.
 - Validates all data and enforces RLS.
 
+## Image Pipeline & Budget Management
+
+The image subsystem ensures every meal card can display a relevant photo while keeping generation costs bounded. Incoming requests first reuse any cached recipe image, then waterfall through stock providers, and finally fall back to AI generation only when spend limits allow.
+
+**Required environment variables**
+- `PEXELS_API_KEY`
+- `UNSPLASH_ACCESS_KEY`
+- `PIXABAY_API_KEY`
+- `OPENAI_API_KEY`
+- `MAX_IMAGE_SPEND_MONTH` (overrides the default monthly cap stored in `system_limits`)
+
+Stock imagery from Pexels → Unsplash → Pixabay is always preferred. If no safe match (≥1024px, ~1:1 or 4:3) is available, the Edge Function checks `system_limits` and `user_image_quota` before issuing an OpenAI Images request. When the monthly cap is reached or generation is disabled, category placeholders are returned instead of new renders. Image generation runs entirely on backend infrastructure; public clients never invoke these providers directly.
+
+**Helpful CLI commands**
+```bash
+# Re-apply the latest image schema changes
+supabase db push
+
+# Exercise the image Edge Function locally (requires auth JWT)
+supabase functions serve --env-file .env.local api/images/fetch-or-generate
+curl -s -X POST http://localhost:54321/functions/v1/api/images/fetch-or-generate \
+  -H "Authorization: Bearer $USER_JWT" \
+  -H "Content-Type: application/json" \
+  -d '{"recipe_id":"<uuid>","recipe_name":"Spiced Lentils","category":"vegan"}'
+```
+
 ## Phase 1 Verification Checklist
 - [x] Supabase local runs (`supabase start`)
 - [x] Migrations applied successfully
