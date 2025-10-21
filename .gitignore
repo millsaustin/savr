@@ -1,1 +1,21 @@
 savr/
+.env.local
+*.env.local
+apps/web/.env.local
+
+# Node modules
+node_modules/
+**/node_modules/
+
+# Next.js
+.next/
+**/.next/
+out/
+build/
+dist/
+
+# Misc
+.DS_Store
+*.log
+.turbo
+.vercel

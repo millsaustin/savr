@@ -92,7 +92,7 @@ curl -s -X POST http://localhost:54321/functions/v1/api/images/fetch-or-generate
   -d '{"recipe_id":"<uuid>","recipe_name":"Spiced Lentils","category":"vegan"}'
 ```
 
-## Phase 3 — Grocery Aggregation
+## Phase 3 - Grocery Aggregation
 
 Savr now normalizes grocery items across meals, tracks plan-level selections, and optionally persists lists for later reference.
 
@@ -161,7 +161,7 @@ Response snippet:
 - Amount parsing accepts inputs like `"1 1/2 tbsp"`, `"400 g"`, and `"1 can (15 oz)"`.
 - Unknown units fall back to raw notes; conflicting units add explanatory notes.
 
-## Quickstart — Phase 3
+## Quickstart - Phase 3
 
 ```bash
 # Apply the new meal plan + grocery tables
@@ -187,5 +187,53 @@ curl -s -X GET "http://localhost:54321/functions/v1/api/groceries/plan/7c2e...?p
 - [x] Logs redact sensitive data
 - [x] Zod validation in place
 - [x] Unit tests pass
+
+## Phase 4 — Guardrails and Observability
+
+Savr’s guardrail layer defends the conversational endpoints while keeping telemetry anonymized and actionable.
+
+### Allowed Topics
+- Recipes & meal planning
+- Pantry / on-hand ingredients
+- Groceries & shopping lists
+- Nutrition & macros
+- Food profiles, dietary restrictions, budget guidance
+
+### Refusal Codes
+| Code | Meaning |
+| --- | --- |
+| `OFF_TOPIC` | Prompt falls outside supported food domains |
+| `BLOCKED` | Provider or local moderation flagged the content |
+| `INJECTION` | Prompt-injection heuristic triggered (`ignore previous…`, etc.) |
+| `429_RATE_LIMITED` | User/IP exceeded sliding-window request limits |
+| `402_BUDGET_CAP` | Monthly text budget or system spend cap reached |
+| `INVALID_FORMAT` | Request body failed schema validation |
+| `TOO_LONG` | Prompt exceeded max length (1,500 chars) |
+
+### Environment Variables
+
+| Variable | Default | Purpose |
+| --- | --- | --- |
+| `EMBEDDINGS_MODEL` | `gpt-embedding-3-small` | Guardrail embeddings provider |
+| `MODERATION_MODEL` | `omni-moderation-latest` | Moderation provider model |
+| `GUARD_SIMILARITY_THRESHOLD` | `0.35` | Min cosine score (scaled [0,1]) for on-topic prompts |
+| `GUARD_BLOCK_AFTER_THREE` | `true` | After three consecutive off-topic attempts, auto-block |
+| `REQUESTS_PER_30S` | `5` | Sliding-window limit per user/IP hash (30 seconds) |
+| `REQUESTS_PER_DAY` | `100` | Daily per user/IP hash limit |
+| `IP_HASH_SALT` | _required_ | Salted HMAC key for IP hashing |
+| `TEXT_TOKEN_BUDGET_MONTH` | `150000` | Monthly text token budget (in-memory counter) |
+| `GUARD_COST_PER_REQUEST` | `0.05` | Estimated cost per text request (USD) |
+| `ALLOWED_ADMIN_EMAILS` | _(none)_ | Comma-separated emails allowed in admin dashboard |
+
+### Admin Dashboard
+- Route: `/admin/observability`
+- Shows hourly guardrail metrics: off-topic %, moderation flags, rate limits, blocks, spend savings.
+- Guard controls let admins adjust similarity threshold & “block after three” at runtime (in-memory).
+- Access requires Supabase-authenticated users whose email appears in `ALLOWED_ADMIN_EMAILS`; middleware returns 404 otherwise.
+
+### Privacy Commitments
+- No raw prompts or IP addresses are logged.
+- Only salted `ip_hash` values (SHA-256 HMAC) are stored alongside guard metadata.
+- Observability view exposes aggregates only—no per-user or prompt data.
 
 
