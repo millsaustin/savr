@@ -1,0 +1,52 @@
+# Docker Compose configuration for Stable Diffusion service
+# Automatically detects GPU availability
+
+version: '3.8'
+
+services:
+  diffusion:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: savr-diffusion
+    ports:
+      - "7861:7861"
+    environment:
+      # Model selection
+      - USE_SDXL=false  # Set to 'true' for SDXL (requires more VRAM), 'false' for SD 1.5
+      - SDXL_MODEL=stabilityai/stable-diffusion-xl-base-1.0
+      - SD15_MODEL=runwayml/stable-diffusion-v1-5
+
+      # Performance optimizations
+      - ENABLE_ATTENTION_SLICING=true
+      - ENABLE_VAE_SLICING=true
+
+      # Hugging Face cache (optional, for faster startups)
+      - HF_HOME=/app/models
+      - TRANSFORMERS_CACHE=/app/models
+
+    volumes:
+      # Persistent model cache (avoids re-downloading on restart)
+      - diffusion-models:/app/models
+
+    deploy:
+      resources:
+        # GPU support (automatically skipped if no GPU available)
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+
+    restart: unless-stopped
+
+    healthcheck:
+      test: ["CMD", "python", "-c", "import requests; requests.get('http://localhost:7861/health')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 120s
+
+volumes:
+  diffusion-models:
+    driver: local

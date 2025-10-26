@@ -2,6 +2,7 @@
   "name": "savr",
   "private": true,
   "scripts": {
+    "dev": "npm run dev --prefix apps/web",
     "db:reset": "supabase db reset && supabase db push",
     "test": "vitest run"
   }

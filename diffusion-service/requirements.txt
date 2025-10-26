@@ -1,0 +1,22 @@
+# Python dependencies for Stable Diffusion image generation service
+# Core web framework
+fastapi==0.104.1
+uvicorn[standard]==0.24.0
+pydantic==2.5.0
+
+# Deep learning & diffusion models
+torch==2.1.0
+torchvision==0.16.0
+diffusers==0.24.0
+transformers==4.35.2
+accelerate==0.25.0
+safetensors==0.4.1
+
+# Image processing
+pillow==10.1.0
+
+# Optional but recommended for better performance
+xformers==0.0.22.post7; platform_system != "Windows"  # Memory-efficient attention
+
+# Monitoring & logging
+python-multipart==0.0.6

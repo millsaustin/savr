@@ -1,26 +1,31 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-const PROTECTED_PATHS = ['/assistant', '/dashboard'];
-
-function requiresAuth(request: NextRequest) {
-  const envToggle = process.env.REQUIRE_AUTH;
-  if (envToggle?.toLowerCase() !== 'true') return false;
-
-  const pathname = request.nextUrl.pathname;
-  return PROTECTED_PATHS.some(
-    (path) => pathname === path || pathname.startsWith(`${path}/`),
-  );
-}
+const PROTECTED_PATHS = ['/dashboard'];
 
 export function middleware(request: NextRequest) {
-  if (!requiresAuth(request)) {
-    return NextResponse.next();
+  const session = request.cookies.get('session');
+  const { pathname } = request.nextUrl;
+
+  // Check if the current path is protected
+  const isProtectedRoute = PROTECTED_PATHS.some(
+    (path) => pathname === path || pathname.startsWith(`${path}/`)
+  );
+
+  // If accessing a protected route without a session, redirect to login
+  if (isProtectedRoute && !session) {
+    const loginUrl = new URL('/login', request.url);
+    loginUrl.searchParams.set('redirect', pathname);
+    return NextResponse.redirect(loginUrl);
   }
 
-  const loginUrl = new URL('/login', request.url);
-  return NextResponse.redirect(loginUrl);
+  // If logged in and trying to access login page, redirect to dashboard
+  if (pathname === '/login' && session) {
+    return NextResponse.redirect(new URL('/dashboard', request.url));
+  }
+
+  return NextResponse.next();
 }
 
 export const config = {
-  matcher: ['/assistant/:path*', '/dashboard/:path*'],
+  matcher: ['/dashboard/:path*', '/login'],
 };

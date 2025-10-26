@@ -2,6 +2,8 @@
 const nextConfig = {
   reactStrictMode: true,
   async headers() {
+    const isDev = process.env.NODE_ENV !== 'production';
+
     return [
       {
         source: '/(.*)',
@@ -10,7 +12,9 @@ const nextConfig = {
             key: 'Content-Security-Policy',
             value: [
               "default-src 'self'",
-              "script-src 'self' 'unsafe-inline' https:",
+              isDev
+                ? "script-src 'self' 'unsafe-inline' 'unsafe-eval' https:"
+                : "script-src 'self' 'unsafe-inline' https:",
               "style-src 'self' 'unsafe-inline' https:",
               "img-src 'self' data: https:",
               "connect-src 'self' https:",
