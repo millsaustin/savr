@@ -44,20 +44,21 @@ export function HomeChatInterface() {
     setFavoritingRecipe(recipe.id);
 
     try {
-      const response = await fetch('/api/favorites/add', {
+      const response = await fetch('/api/favorites', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ recipe }),
+        body: JSON.stringify({ recipe_id: recipe.id }),
       });
 
       if (!response.ok) {
-        throw new Error('Failed to favorite recipe');
+        const data = await response.json();
+        throw new Error(data.error || 'Failed to favorite recipe');
       }
 
       setFavoritedRecipes(prev => new Set([...prev, recipe.id]));
     } catch (error) {
       console.error('Error favoriting recipe:', error);
-      alert('Failed to save recipe to favorites');
+      alert(error instanceof Error ? error.message : 'Failed to save recipe to favorites');
     } finally {
       setFavoritingRecipe(null);
     }

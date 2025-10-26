@@ -3,10 +3,28 @@
 import { useState, useCallback, useRef } from 'react';
 import { Logo } from './logo';
 
+type Recipe = {
+  id: string;
+  name: string;
+  description: string;
+  cookTime: string;
+  servings: number;
+  calories: number;
+  protein: number;
+  carbs?: number;
+  fat?: number;
+  tags: string[];
+  cuisine: string;
+  category: string;
+  ingredients: string[];
+  instructions: string[];
+};
+
 type Message = {
   id: string;
   role: 'user' | 'assistant';
   content: string;
+  recipe?: Recipe;
 };
 
 type ResponseStatus =
@@ -18,7 +36,33 @@ export function DashboardChatInterface() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputValue, setInputValue] = useState('');
   const [status, setStatus] = useState<ResponseStatus>({ state: 'idle' });
+  const [favoritingRecipe, setFavoritingRecipe] = useState<string | null>(null);
+  const [favoritedRecipes, setFavoritedRecipes] = useState<Set<string>>(new Set());
   const inputRef = useRef<HTMLInputElement>(null);
+
+  const handleFavoriteRecipe = useCallback(async (recipe: Recipe) => {
+    setFavoritingRecipe(recipe.id);
+
+    try {
+      const response = await fetch('/api/favorites', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ recipe_id: recipe.id }),
+      });
+
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.error || 'Failed to favorite recipe');
+      }
+
+      setFavoritedRecipes(prev => new Set([...prev, recipe.id]));
+    } catch (error) {
+      console.error('Error favoriting recipe:', error);
+      alert(error instanceof Error ? error.message : 'Failed to save recipe to favorites');
+    } finally {
+      setFavoritingRecipe(null);
+    }
+  }, []);
 
   const quickActions = [
     { label: 'Suggest meal from pantry', prompt: 'What can I make with the ingredients in my pantry?' },
@@ -63,6 +107,7 @@ export function DashboardChatInterface() {
         id: (Date.now() + 1).toString(),
         role: 'assistant',
         content: data.result || 'I received your message!',
+        recipe: data.recipe, // Include recipe data if present
       };
 
       setMessages((prev) => [...prev, assistantMessage]);
@@ -178,13 +223,111 @@ export function DashboardChatInterface() {
               )}
 
               <div
-                className={`p-4 rounded-lg max-w-[80%] ${
+                className={`p-4 rounded-lg ${
                   message.role === 'user'
-                    ? 'bg-brand-primary text-white'
-                    : 'bg-gray-100 text-gray-800 border border-gray-200'
+                    ? 'bg-brand-primary text-white max-w-[80%]'
+                    : 'bg-gray-100 text-gray-800 border border-gray-200 max-w-2xl'
                 }`}
               >
                 <div className="text-sm leading-relaxed whitespace-pre-wrap">{message.content}</div>
+
+                {/* Recipe Card */}
+                {message.recipe && (
+                  <div className="mt-4 bg-white border border-gray-300 rounded-lg overflow-hidden shadow-sm">
+                    {/* Recipe Header */}
+                    <div className="p-4 bg-brand-primary/5 border-b border-gray-200">
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1">
+                          <h3 className="text-lg font-bold text-teal-900">{message.recipe.name}</h3>
+                          <p className="text-sm text-gray-600 mt-1">{message.recipe.description}</p>
+                        </div>
+                        <button
+                          onClick={() => handleFavoriteRecipe(message.recipe!)}
+                          disabled={favoritingRecipe === message.recipe.id || favoritedRecipes.has(message.recipe.id)}
+                          className={`ml-3 p-2 rounded-lg transition ${
+                            favoritedRecipes.has(message.recipe.id)
+                              ? 'bg-red-50 text-red-500'
+                              : 'bg-white text-gray-400 hover:text-red-500 hover:bg-red-50'
+                          } ${favoritingRecipe === message.recipe.id ? 'opacity-50 cursor-not-allowed' : ''}`}
+                        >
+                          <svg className="h-6 w-6 fill-current" viewBox="0 0 24 24">
+                            <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
+                          </svg>
+                        </button>
+                      </div>
+
+                      {/* Recipe Metadata */}
+                      <div className="flex gap-4 mt-3 text-sm">
+                        <div className="flex items-center gap-1">
+                          <svg className="h-4 w-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                          </svg>
+                          <span className="text-gray-700">{message.recipe.cookTime}</span>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <svg className="h-4 w-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                          </svg>
+                          <span className="text-gray-700">{message.recipe.servings} servings</span>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <span className="text-gray-700">{message.recipe.calories} cal</span>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <span className="text-gray-700">{message.recipe.protein}g protein</span>
+                        </div>
+                      </div>
+
+                      {/* Tags */}
+                      <div className="flex flex-wrap gap-2 mt-3">
+                        {message.recipe.tags.slice(0, 5).map((tag, idx) => (
+                          <span
+                            key={idx}
+                            className="px-2 py-1 bg-brand-secondary/20 text-brand-primary text-xs font-medium rounded"
+                          >
+                            {tag}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Ingredients & Instructions */}
+                    <div className="p-4 grid md:grid-cols-2 gap-4">
+                      {/* Ingredients */}
+                      <div>
+                        <h4 className="font-semibold text-gray-900 mb-2">Ingredients</h4>
+                        <ul className="space-y-1.5 text-sm text-gray-700">
+                          {message.recipe.ingredients.map((ingredient, idx) => (
+                            <li key={idx} className="flex items-start">
+                              <span className="text-brand-primary mr-2">•</span>
+                              {ingredient}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+
+                      {/* Instructions */}
+                      <div>
+                        <h4 className="font-semibold text-gray-900 mb-2">Instructions</h4>
+                        <ol className="space-y-2 text-sm text-gray-700">
+                          {message.recipe.instructions.map((instruction, idx) => (
+                            <li key={idx} className="flex items-start">
+                              <span className="text-brand-primary font-semibold mr-2">{idx + 1}.</span>
+                              <span>{instruction}</span>
+                            </li>
+                          ))}
+                        </ol>
+                      </div>
+                    </div>
+
+                    {/* Favorite Status */}
+                    {favoritedRecipes.has(message.recipe.id) && (
+                      <div className="px-4 py-2 bg-green-50 border-t border-green-200 text-center">
+                        <p className="text-sm text-green-700 font-medium">✓ Saved to Favorites!</p>
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
 
               {message.role === 'user' && (
