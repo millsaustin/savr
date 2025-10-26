@@ -1,46 +1,37 @@
 import { NextResponse } from 'next/server';
+import { createClient } from '@supabase/supabase-js';
 import { cookies } from 'next/headers';
+
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
 
 export async function GET() {
   try {
-    const session = cookies().get('session');
+    const cookieStore = cookies();
+    const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+      global: {
+        headers: {
+          cookie: cookieStore.toString(),
+        },
+      },
+    });
 
-    if (!session) {
+    const {
+      data: { user },
+      error,
+    } = await supabase.auth.getUser();
+
+    if (error || !user) {
       return NextResponse.json(
         { authenticated: false },
         { status: 401 }
       );
     }
 
-    // Decode and validate session token
-    try {
-      const sessionData = JSON.parse(
-        Buffer.from(session.value, 'base64').toString()
-      );
-
-      // Check if session is still valid (within 7 days)
-      const sessionAge = Date.now() - sessionData.timestamp;
-      const maxAge = 7 * 24 * 60 * 60 * 1000; // 7 days in milliseconds
-
-      if (sessionAge > maxAge) {
-        cookies().delete('session');
-        return NextResponse.json(
-          { authenticated: false, message: 'Session expired' },
-          { status: 401 }
-        );
-      }
-
-      return NextResponse.json(
-        { authenticated: true, email: sessionData.email },
-        { status: 200 }
-      );
-    } catch (decodeError) {
-      cookies().delete('session');
-      return NextResponse.json(
-        { authenticated: false, message: 'Invalid session' },
-        { status: 401 }
-      );
-    }
+    return NextResponse.json(
+      { authenticated: true, user: { id: user.id, email: user.email } },
+      { status: 200 }
+    );
   } catch (error) {
     console.error('Auth check error:', error);
     return NextResponse.json(

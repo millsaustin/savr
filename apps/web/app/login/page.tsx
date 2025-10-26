@@ -2,9 +2,12 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { Logo } from '../../components/logo';
+import { signIn, signInWithGoogle } from '../../lib/auth/supabase-auth';
 
 export default function LoginPage() {
+  const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -12,36 +15,39 @@ export default function LoginPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('Form submitted with:', { email, password });
     setIsLoading(true);
     setError('');
 
     try {
-      console.log('Sending request to /api/auth/login');
-      const response = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email, password }),
-      });
+      const { data, error: signInError } = await signIn(email, password);
 
-      console.log('Response status:', response.status);
-      const data = await response.json();
-      console.log('Response data:', data);
-
-      if (data.success) {
-        console.log('Login successful, redirecting to dashboard');
-        window.location.href = '/dashboard';
-      } else {
-        console.log('Login failed:', data.message);
-        setError(data.message || 'Login failed');
+      if (signInError) {
+        setError(signInError.message);
         setIsLoading(false);
+        return;
+      }
+
+      if (data?.session) {
+        // Login successful, redirect to dashboard
+        router.push('/dashboard');
       }
     } catch (err) {
       console.error('Login error:', err);
       setError('An error occurred. Please try again.');
       setIsLoading(false);
+    }
+  };
+
+  const handleGoogleSignIn = async () => {
+    try {
+      const { error: googleError } = await signInWithGoogle();
+
+      if (googleError) {
+        setError(googleError.message);
+      }
+    } catch (err) {
+      console.error('Google sign-in error:', err);
+      setError('Failed to sign in with Google');
     }
   };
 
@@ -131,6 +137,7 @@ export default function LoginPage() {
             <div className="space-y-3">
               <button
                 type="button"
+                onClick={handleGoogleSignIn}
                 className="w-full flex items-center justify-center gap-3 px-4 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition font-medium text-gray-700"
               >
                 <svg className="h-5 w-5" viewBox="0 0 24 24">
@@ -163,23 +170,6 @@ export default function LoginPage() {
               Sign up for free
             </Link>
           </p>
-
-          {/* Dev note */}
-          <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-            <p className="text-xs text-blue-800 mb-2">
-              <strong>Local Authentication Enabled</strong>
-            </p>
-            <p className="text-xs text-blue-700">
-              Default credentials:<br />
-              Email: <code className="bg-blue-100 px-1 py-0.5 rounded">admin@savr.com</code><br />
-              Password: <code className="bg-blue-100 px-1 py-0.5 rounded">admin123</code>
-            </p>
-            <p className="text-xs text-blue-600 mt-2">
-              You can customize these in <code className="bg-blue-100 px-1 py-0.5 rounded">.env.local</code> with{' '}
-              <code className="bg-blue-100 px-1 py-0.5 rounded">LOCAL_AUTH_EMAIL</code> and{' '}
-              <code className="bg-blue-100 px-1 py-0.5 rounded">LOCAL_AUTH_PASSWORD</code>
-            </p>
-          </div>
       </div>
     </div>
   );

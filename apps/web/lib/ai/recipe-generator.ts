@@ -39,6 +39,11 @@ export type GeneratedRecipe = {
 export async function generateRecipeWithAI(
   request: RecipeRequest
 ): Promise<GeneratedRecipe> {
+  // Feature flag check
+  if (process.env.ENABLE_AI_GENERATION !== 'true') {
+    throw new Error('AI recipe generation is currently disabled');
+  }
+
   const { prompt, userContext } = request;
 
   // Build context string
@@ -119,7 +124,7 @@ Guidelines:
   console.log('[AI] User prompt:', userPrompt);
 
   const message = await anthropic.messages.create({
-    model: 'claude-3-5-sonnet-20241022',
+    model: 'claude-3-5-haiku-20241022',
     max_tokens: 2048,
     messages: [
       {

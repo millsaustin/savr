@@ -20,6 +20,8 @@ type Recipe = {
 };
 
 async function assistantHandler(request: GuardedRequest, _context: NextRouteHandlerContext) {
+  // TODO: Add authentication check once auth system is fully tested
+
   const sanitizedPrompt = request.savr?.sanitizedPrompt || '';
   const intent = request.savr?.guard?.intent || 'UNKNOWN';
 
