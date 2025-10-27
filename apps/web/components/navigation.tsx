@@ -45,7 +45,7 @@ export function Navigation() {
 
   return (
     <nav className="border-b border-gray-200 bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/95">
-      <div className={`px-6 transition-all duration-500 ${
+      <div className={`px-6 transition-all duration-[600ms] ease-[cubic-bezier(0.4,0,0.2,1)] ${
         isDashboard && isDrawerOpen ? 'lg:w-[30%] lg:ml-0' : 'mx-auto max-w-7xl'
       }`}>
         <div className="flex h-16 items-center justify-between">

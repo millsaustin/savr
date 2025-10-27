@@ -49,9 +49,10 @@ export default function SignupPage() {
         if (data.user.identities && data.user.identities.length === 0) {
           setSuccess(true);
           setError('Please check your email to confirm your account');
+          setIsLoading(false);
         } else {
           // Auto-signed in, redirect to dashboard
-          router.push('/dashboard');
+          window.location.href = '/dashboard';
         }
       }
     } catch (err) {

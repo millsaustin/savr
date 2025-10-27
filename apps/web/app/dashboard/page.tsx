@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import Button from "../../components/ui/button";
 import { DashboardChatInterface } from "../../components/dashboard-chat-interface";
 import { PantryDrawer } from "../../components/pantry-drawer";
@@ -61,30 +61,51 @@ const DashboardPage = () => {
   return (
     <div className="flex flex-col bg-gray-50 min-h-screen">
       <motion.main
-        className={`flex-1 w-full px-6 py-12 transition-all duration-500 ${
-          isDrawerOpen ? 'lg:w-[30%] lg:ml-0' : 'mx-auto max-w-7xl'
+        layout
+        className={`flex-1 w-full px-6 ${
+          isDrawerOpen ? 'lg:w-[30%] lg:ml-0 py-6' : 'mx-auto max-w-7xl py-12'
         }`}
+        transition={{
+          layout: { duration: 0.6, ease: [0.4, 0, 0.2, 1] }
+        }}
       >
-        <div className="space-y-12">
+        <motion.div
+          layout
+          className="space-y-12"
+          transition={{ duration: 0.6, ease: [0.4, 0, 0.2, 1] }}
+        >
           <motion.div
             className="space-y-12"
             initial="hidden"
             animate="visible"
             variants={{ visible: { transition: { staggerChildren: 0.12 } } }}
           >
-            <motion.div variants={fade} className="flex flex-wrap items-center justify-between gap-6">
+            <motion.div
+              variants={fade}
+              layout="position"
+              className="flex flex-wrap items-center justify-between gap-6"
+              transition={{ duration: 0.6, ease: [0.4, 0, 0.2, 1] }}
+            >
               <div className="space-y-3">
                 <p className="text-sm font-semibold uppercase tracking-widest text-brand-primary">
                   Dashboard
                 </p>
-                <h1 className={`font-semibold text-teal-900 transition-all ${isDrawerOpen ? 'text-2xl lg:text-3xl' : 'text-4xl md:text-5xl'}`}>
+                <h1 className={`font-semibold text-teal-900 transition-all duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] ${isDrawerOpen ? 'text-2xl lg:text-3xl' : 'text-4xl md:text-5xl'}`}>
                   Your meal planning hub
                 </h1>
-                {!isDrawerOpen && (
-                  <p className="max-w-2xl text-base text-gray-700">
-                    Keep tabs on the meals you love, ingredients you have, and the groceries you still need.
-                  </p>
-                )}
+                <AnimatePresence>
+                  {!isDrawerOpen && (
+                    <motion.p
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: 'auto' }}
+                      exit={{ opacity: 0, height: 0 }}
+                      transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
+                      className="max-w-2xl text-base text-gray-700 overflow-hidden"
+                    >
+                      Keep tabs on the meals you love, ingredients you have, and the groceries you still need.
+                    </motion.p>
+                  )}
+                </AnimatePresence>
               </div>
               {!isDrawerOpen && (
                 <div className="flex flex-wrap gap-3">
@@ -96,9 +117,11 @@ const DashboardPage = () => {
             </motion.div>
 
             {/* Main content grid - Chat with cards around it */}
-            <motion.div variants={fade} className={`grid gap-6 ${isDrawerOpen ? 'lg:grid-cols-1' : 'lg:grid-cols-3'}`}>
+            <div
+              className={`grid gap-6 transition-all duration-[600ms] ease-[cubic-bezier(0.4,0,0.2,1)] ${isDrawerOpen ? 'lg:grid-cols-1' : 'lg:grid-cols-3'}`}
+            >
               {/* Left/Top - Chat Interface */}
-              <div className={`h-[600px] ${isDrawerOpen ? '' : 'lg:col-span-2'}`}>
+              <div className={`h-[600px] transition-all duration-[600ms] ease-[cubic-bezier(0.4,0,0.2,1)] ${isDrawerOpen ? '' : 'lg:col-span-2'}`}>
                 <DashboardChatInterface />
               </div>
 
@@ -110,27 +133,44 @@ const DashboardPage = () => {
                       key={card.title}
                       variants={fade}
                       onClick={() => handleCardClick(card.id)}
-                      className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm transition hover:shadow-md hover:border-brand-primary/30 cursor-pointer group flex flex-col justify-between"
+                      whileHover={{
+                        scale: 1.02,
+                        y: -4,
+                        transition: { duration: 0.3, ease: [0.4, 0, 0.2, 1] }
+                      }}
+                      whileTap={{ scale: 0.98 }}
+                      className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm transition-all duration-300 ease-out hover:shadow-lg hover:border-brand-primary/40 cursor-pointer group flex flex-col justify-between"
                     >
                       <div>
-                        <h2 className="text-lg font-semibold text-teal-900 group-hover:text-brand-primary transition">
+                        <h2 className="text-lg font-semibold text-teal-900 group-hover:text-brand-primary transition-colors duration-300">
                           {card.title}
                         </h2>
                         <p className="mt-2 text-sm text-gray-700 leading-relaxed">{card.description}</p>
                       </div>
                       <div className="mt-4 flex items-center gap-2 text-xs uppercase tracking-widest text-brand-primary">
                         <span>Open</span>
-                        <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <motion.svg
+                          className="h-4 w-4"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                          animate={{ x: [0, 4, 0] }}
+                          transition={{
+                            duration: 1.5,
+                            repeat: Infinity,
+                            ease: "easeInOut"
+                          }}
+                        >
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                        </svg>
+                        </motion.svg>
                       </div>
                     </motion.article>
                   ))}
                 </div>
               )}
-            </motion.div>
+            </div>
           </motion.div>
-        </div>
+        </motion.div>
       </motion.main>
 
       {/* Drawers */}

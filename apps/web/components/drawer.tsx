@@ -46,7 +46,7 @@ export function Drawer({ isOpen, onClose, title, children }: DrawerProps) {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.2 }}
+            transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
             onClick={onClose}
             className="fixed inset-0 bg-black/40 backdrop-blur-sm z-40 lg:hidden"
           />
@@ -57,15 +57,29 @@ export function Drawer({ isOpen, onClose, title, children }: DrawerProps) {
             initial={{ x: '100%' }}
             animate={{ x: 0 }}
             exit={{ x: '100%' }}
-            transition={{ type: 'spring', damping: 30, stiffness: 300 }}
+            transition={{
+              type: 'spring',
+              damping: 40,
+              stiffness: 280,
+              mass: 0.8,
+              restDelta: 0.001
+            }}
             className="fixed top-0 right-0 h-full w-full lg:w-[70%] bg-white shadow-2xl z-50 flex flex-col"
           >
             {/* Header */}
-            <div className="flex items-center justify-between border-b border-gray-200 px-6 py-4 bg-white">
+            <motion.div
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.1, duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
+              className="flex items-center justify-between border-b border-gray-200 px-6 py-4 bg-white"
+            >
               <h2 className="text-2xl font-semibold text-teal-900">{title}</h2>
-              <button
+              <motion.button
                 onClick={onClose}
-                className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
+                whileHover={{ scale: 1.1, rotate: 90 }}
+                whileTap={{ scale: 0.9 }}
+                transition={{ duration: 0.2, ease: [0.4, 0, 0.2, 1] }}
+                className="p-2 rounded-lg hover:bg-gray-100 transition-colors duration-200"
                 aria-label="Close drawer"
               >
                 <svg
@@ -81,13 +95,18 @@ export function Drawer({ isOpen, onClose, title, children }: DrawerProps) {
                     d="M6 18L18 6M6 6l12 12"
                   />
                 </svg>
-              </button>
-            </div>
+              </motion.button>
+            </motion.div>
 
             {/* Content */}
-            <div className="flex-1 overflow-y-auto bg-gray-50">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.2, duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
+              className="flex-1 overflow-y-auto bg-gray-50"
+            >
               {children}
-            </div>
+            </motion.div>
           </motion.div>
         </>
       )}

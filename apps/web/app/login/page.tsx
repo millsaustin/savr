@@ -6,6 +6,8 @@ import { useRouter } from 'next/navigation';
 import { Logo } from '../../components/logo';
 import { signIn, signInWithGoogle } from '../../lib/auth/supabase-auth';
 
+console.log('🔥🔥🔥 LOGIN PAGE LOADED 🔥🔥🔥');
+
 export default function LoginPage() {
   const router = useRouter();
   const [email, setEmail] = useState('');
@@ -14,22 +16,36 @@ export default function LoginPage() {
   const [error, setError] = useState('');
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+    e.preventDefault(); // PREVENT DEFAULT FIRST
+    console.log('🚀 handleSubmit called!', {
+      email,
+      emailLength: email.length,
+      passwordLength: password.length,
+      emailIsValid: email.includes('@')
+    });
     setIsLoading(true);
     setError('');
 
     try {
       const { data, error: signInError } = await signIn(email, password);
 
+      console.log('Sign in response:', { data, error: signInError });
+
       if (signInError) {
+        console.error('Sign in error:', signInError);
         setError(signInError.message);
         setIsLoading(false);
         return;
       }
 
       if (data?.session) {
-        // Login successful, redirect to dashboard
-        router.push('/dashboard');
+        console.log('Session found, redirecting...');
+        // Use router.replace to avoid adding to history
+        await router.replace('/dashboard');
+      } else {
+        console.log('No session returned:', data);
+        setError('Sign in failed. Please check your email and password.');
+        setIsLoading(false);
       }
     } catch (err) {
       console.error('Login error:', err);
@@ -52,7 +68,7 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4 py-12">
+    <div className="h-screen bg-gray-50 flex items-center justify-center px-4 overflow-hidden">
       <div className="w-full max-w-md">
           {/* Logo and heading */}
           <div className="text-center mb-8">
@@ -65,7 +81,7 @@ export default function LoginPage() {
 
           {/* Login form */}
           <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-8">
-            <form onSubmit={handleSubmit} className="space-y-6">
+            <form onSubmit={(e) => e.preventDefault()} className="space-y-6">
               {/* Error message */}
               {error && (
                 <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
@@ -115,7 +131,11 @@ export default function LoginPage() {
 
               {/* Submit button */}
               <button
-                type="submit"
+                type="button"
+                onClick={(e) => {
+                  console.log('🔵 BUTTON CLICKED!');
+                  handleSubmit(e as any);
+                }}
                 disabled={isLoading}
                 className="w-full bg-brand-primary text-white py-3 rounded-lg font-semibold hover:bg-brand-dark focus:outline-none focus:ring-2 focus:ring-brand-primary focus:ring-offset-2 transition disabled:opacity-50 disabled:cursor-not-allowed"
               >
