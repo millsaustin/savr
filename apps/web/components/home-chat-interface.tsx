@@ -96,6 +96,22 @@ export function HomeChatInterface() {
       const data = await response.json();
 
       if (!response.ok) {
+        // Check if authentication is required
+        if (response.status === 401 && data.error?.requiresAuth) {
+          setStatus({
+            state: 'error',
+            message: 'Please sign in to use AI recipe generation. Sign up for free to get started!',
+          });
+
+          // Show login prompt after a short delay
+          setTimeout(() => {
+            if (confirm('Sign in required. Would you like to create a free account now?')) {
+              window.location.href = '/signup';
+            }
+          }, 1000);
+          return;
+        }
+
         setStatus({
           state: 'error',
           message: data.error?.message || data.message || 'Unable to process your request',
@@ -134,15 +150,19 @@ export function HomeChatInterface() {
 
   return (
     <div className="flex flex-col h-full bg-white rounded-2xl border border-gray-200 overflow-hidden" style={{ boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.35), 0 0 0 1px rgba(0, 0, 0, 0.05)' }}>
-      {/* Public mode banner */}
-      <div className="bg-brand-primary/10 border-b border-brand-primary/20 p-3 text-center">
-        <p className="text-sm text-gray-700">
-          <svg className="inline h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      {/* Auth required banner */}
+      <div className="bg-yellow-50 border-b border-yellow-200 p-3 text-center">
+        <p className="text-sm text-yellow-900">
+          <svg className="inline h-4 w-4 mr-1 text-yellow-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
           </svg>
-          Sign up for personalized recommendations based on your pantry and macro goals.{' '}
+          <strong>Free account required</strong> to generate AI recipes.{' '}
+          <Link href="/signup" className="font-semibold underline hover:text-brand-primary">
+            Sign up in 30 seconds
+          </Link>
+          {' '}or{' '}
           <Link href="/login" className="font-semibold underline hover:text-brand-primary">
-            Get Started Free
+            Sign in
           </Link>
         </p>
       </div>

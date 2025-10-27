@@ -1,6 +1,11 @@
 import { NextResponse } from 'next/server';
+import { cookies } from 'next/headers';
+import { createClient } from '@supabase/supabase-js';
 import { withGuards, type GuardedRequest, type NextRouteHandlerContext } from '../../../src/guards/withGuards';
 import { generateRecipeWithAI } from '../../../lib/ai/recipe-generator';
+
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
 
 type Recipe = {
   id: string;
@@ -20,7 +25,50 @@ type Recipe = {
 };
 
 async function assistantHandler(request: GuardedRequest, _context: NextRouteHandlerContext) {
-  // TODO: Add authentication check once auth system is fully tested
+  // SECURITY: Require authentication to prevent AI abuse
+  const cookieStore = cookies();
+  const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+    global: {
+      headers: {
+        cookie: cookieStore.toString(),
+      },
+    },
+  });
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return NextResponse.json(
+      {
+        error: {
+          message: 'Please sign in to generate recipes with AI',
+          requiresAuth: true
+        }
+      },
+      { status: 401 }
+    );
+  }
+
+  // Check if user is admin
+  const { data: preferences } = await supabase
+    .from('user_preferences')
+    .select('is_admin')
+    .eq('user_id', user.id)
+    .single();
+
+  if (!preferences?.is_admin) {
+    return NextResponse.json(
+      {
+        error: {
+          message: 'AI recipe generation is currently in beta and limited to admin users only. Contact support for access.',
+          requiresAdmin: true
+        }
+      },
+      { status: 403 }
+    );
+  }
 
   const sanitizedPrompt = request.savr?.sanitizedPrompt || '';
   const intent = request.savr?.guard?.intent || 'UNKNOWN';

@@ -1,6 +1,7 @@
 'use client';
 
-import { useState, useCallback, useRef } from 'react';
+import { useState, useCallback, useRef, useLayoutEffect } from 'react';
+import { motion } from 'framer-motion';
 import { Logo } from './logo';
 
 type Recipe = {
@@ -32,13 +33,64 @@ type ResponseStatus =
   | { state: 'loading' }
   | { state: 'error'; message: string };
 
-export function DashboardChatInterface() {
+type DashboardChatInterfaceProps = {
+  hideIntro?: boolean;
+};
+
+export function DashboardChatInterface({ hideIntro = false }: DashboardChatInterfaceProps) {
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputValue, setInputValue] = useState('');
   const [status, setStatus] = useState<ResponseStatus>({ state: 'idle' });
   const [favoritingRecipe, setFavoritingRecipe] = useState<string | null>(null);
   const [favoritedRecipes, setFavoritedRecipes] = useState<Set<string>>(new Set());
   const inputRef = useRef<HTMLInputElement>(null);
+  const introRef = useRef<HTMLParagraphElement>(null);
+  const [introHeight, setIntroHeight] = useState<number | null>(null);
+  const chatEase = [0.22, 1, 0.36, 1] as const;
+
+  useLayoutEffect(() => {
+    if (hideIntro) {
+      return;
+    }
+
+    const node = introRef.current;
+    if (!node) {
+      return;
+    }
+
+    const updateHeight = () => {
+      setIntroHeight(node.offsetHeight);
+    };
+
+    updateHeight();
+
+    if (typeof ResizeObserver === 'undefined') {
+      return;
+    }
+
+    const observer = new ResizeObserver(() => {
+      updateHeight();
+    });
+
+    observer.observe(node);
+
+    return () => {
+      observer.disconnect();
+    };
+  }, [hideIntro]);
+
+  const introVariants = {
+    visible: (height: number | null) => ({
+      height: height ?? 'auto',
+      opacity: 1,
+      marginBottom: 24,
+    }),
+    hidden: {
+      height: 0,
+      opacity: 0,
+      marginBottom: 0,
+    },
+  } as const;
 
   const handleFavoriteRecipe = useCallback(async (recipe: Recipe) => {
     setFavoritingRecipe(recipe.id);
@@ -146,18 +198,43 @@ export function DashboardChatInterface() {
 
       {/* Messages area */}
       <div className="flex-1 overflow-y-auto p-4">
-        <div className="space-y-4 max-w-3xl mx-auto">
+        <motion.div
+          initial={false}
+          transition={{ duration: 0.45, ease: chatEase }}
+          className="space-y-4 max-w-3xl mx-auto"
+        >
           {messages.length === 0 && (
-            <div className="text-center py-12">
-              <p className="text-3xl text-gray-600 mb-4">Your Personal Chef</p>
+            <motion.div
+              initial={false}
+              transition={{ duration: 0.45, ease: chatEase }}
+              className="text-center py-12"
+            >
+              <motion.p
+                transition={{ duration: 0.45, ease: chatEase }}
+                className="text-3xl text-gray-600 mb-4"
+              >
+                Your Personal Chef
+              </motion.p>
               <div className="flex justify-center items-center mb-4">
                 <Logo size="xl" />
               </div>
-              <p className="text-gray-600 mb-6">
-                I know your pantry, preferences, and goals. Ask me anything about meal planning!
-              </p>
+              <motion.div
+                initial={false}
+                variants={introVariants}
+                custom={introHeight}
+                animate={hideIntro ? 'hidden' : 'visible'}
+                transition={{ duration: 0.4, ease: chatEase }}
+                className="overflow-hidden"
+              >
+                <p ref={introRef} className="text-gray-600 max-w-2xl mx-auto leading-relaxed">
+                  I know your pantry, preferences, and goals. Ask me anything about meal planning!
+                </p>
+              </motion.div>
 
-              <div className="mb-6">
+              <motion.div
+                transition={{ duration: 0.45, ease: chatEase }}
+                className="mb-6"
+              >
                 <form onSubmit={handleSubmit} className="max-w-2xl mx-auto">
                   <div className="flex gap-2">
                     <input
@@ -187,9 +264,12 @@ export function DashboardChatInterface() {
                     </button>
                   </div>
                 </form>
-              </div>
+              </motion.div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-w-2xl mx-auto">
+              <motion.div
+                transition={{ duration: 0.45, ease: chatEase }}
+                className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-w-2xl mx-auto"
+              >
                 {quickActions.map((action) => (
                   <button
                     key={action.label}
@@ -199,8 +279,8 @@ export function DashboardChatInterface() {
                     {action.label}
                   </button>
                 ))}
-              </div>
-            </div>
+              </motion.div>
+            </motion.div>
           )}
 
           {status.state === 'error' && (
@@ -355,7 +435,7 @@ export function DashboardChatInterface() {
               </div>
             </div>
           )}
-        </div>
+        </motion.div>
       </div>
 
       {/* Input area when messages exist */}

@@ -34,10 +34,20 @@ async function personalizedAssistantHandler(request: GuardedRequest, _context: N
   const sanitizedPrompt = request.savr?.sanitizedPrompt || '';
   const intent = request.savr?.guard?.intent || 'UNKNOWN';
 
-  // Fetch real user context from database
+  // Fetch real user context from database (includes admin check)
   let userContext;
+  let isAdmin = false;
   try {
     userContext = await fetchUserContext(user.id);
+
+    // Check admin status
+    const { data: preferences } = await supabase
+      .from('user_preferences')
+      .select('is_admin')
+      .eq('user_id', user.id)
+      .single();
+
+    isAdmin = preferences?.is_admin || false;
   } catch (error) {
     console.error('[personalized-assistant] Error fetching user context:', error);
     userContext = {
@@ -60,6 +70,19 @@ async function personalizedAssistantHandler(request: GuardedRequest, _context: N
     lowerPrompt.includes('breakfast');
 
   if (isRecipeRequest) {
+    // Check if user is admin before allowing AI generation
+    if (!isAdmin) {
+      return NextResponse.json(
+        {
+          error: {
+            message: 'AI recipe generation is currently in beta and limited to admin users only.',
+            requiresAdmin: true
+          }
+        },
+        { status: 403 }
+      );
+    }
+
     // Generate a personalized recipe using AI
     try {
       const aiRecipe = await generateRecipeWithAI({

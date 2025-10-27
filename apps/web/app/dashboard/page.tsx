@@ -121,7 +121,19 @@ const DashboardPage = () => {
               className={`grid gap-6 transition-all duration-[600ms] ease-[cubic-bezier(0.4,0,0.2,1)] ${isDrawerOpen ? 'lg:grid-cols-1' : 'lg:grid-cols-3'}`}
             >
               {/* Left/Top - Chat Interface */}
-              <div className={`h-[600px] transition-all duration-[600ms] ease-[cubic-bezier(0.4,0,0.2,1)] ${isDrawerOpen ? '' : 'lg:col-span-2'}`}>
+              <div
+                className={`h-[600px] transition-all duration-[600ms] ease-[cubic-bezier(0.4,0,0.2,1)] ${
+                  isDrawerOpen ? '' : 'lg:col-span-2'
+                }`}
+                style={
+                  isDrawerOpen
+                    ? undefined
+                    : {
+                        width: '100%',
+                        maxWidth: 'clamp(20rem, 35vw, 44rem)',
+                      }
+                }
+              >
                 <DashboardChatInterface />
               </div>
 
