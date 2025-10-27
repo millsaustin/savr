@@ -1,9 +1,9 @@
 import { NextResponse } from 'next/server';
-import { createServerSupabase } from '../../../../lib/auth/supabase-server';
+import { createRouteHandlerSupabase } from '../../../../lib/auth/supabase-server';
 
 export async function GET() {
   try {
-    const supabase = createServerSupabase();
+    const supabase = createRouteHandlerSupabase();
 
     const {
       data: { user },

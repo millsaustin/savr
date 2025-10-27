@@ -13,7 +13,7 @@ export function Navigation() {
   const { isDrawerOpen } = useDrawer();
 
   useEffect(() => {
-    // Check authentication status
+    // Check authentication status whenever the page changes
     fetch('/api/auth/check')
       .then(res => {
         if (!res.ok) {
@@ -25,17 +25,28 @@ export function Navigation() {
       .then(data => {
         if (data?.authenticated) {
           setIsAuthenticated(true);
+        } else {
+          setIsAuthenticated(false);
         }
       })
       .catch(() => {
         setIsAuthenticated(false);
       });
-  }, []);
+  }, [pathname]); // Re-check when pathname changes
 
   const handleLogout = async () => {
     try {
-      await fetch('/api/auth/logout', { method: 'POST' });
-      window.location.href = '/';
+      // Call the API to clear server-side session
+      const response = await fetch('/api/auth/logout', { method: 'POST' });
+
+      if (response.ok) {
+        // Update local state immediately
+        setIsAuthenticated(false);
+        // Redirect to home page
+        window.location.href = '/';
+      } else {
+        console.error('Logout failed');
+      }
     } catch (error) {
       console.error('Logout failed:', error);
     }
@@ -56,7 +67,14 @@ export function Navigation() {
           <div className="flex items-center gap-3 text-sm font-medium">
             {isAuthenticated ? (
               <>
-                {pathname !== '/dashboard' && (
+                {pathname === '/dashboard' ? (
+                  <Link
+                    href="/"
+                    className="text-gray-700 transition hover:text-brand-primary"
+                  >
+                    Back to home
+                  </Link>
+                ) : (
                   <Link
                     href="/dashboard"
                     className="text-gray-700 transition hover:text-brand-primary"
@@ -64,6 +82,7 @@ export function Navigation() {
                     Dashboard
                   </Link>
                 )}
+                <span className="text-gray-300">|</span>
                 <button
                   onClick={handleLogout}
                   className="text-gray-700 transition hover:text-brand-primary"

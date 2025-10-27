@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import Button from "../../components/ui/button";
 import { DashboardChatInterface } from "../../components/dashboard-chat-interface";
 import { PantryDrawer } from "../../components/pantry-drawer";
 import { FavoritesDrawer } from "../../components/favorites-drawer";
@@ -83,42 +82,33 @@ const DashboardPage = () => {
             <motion.div
               variants={fade}
               layout="position"
-              className="flex flex-wrap items-center justify-between gap-6"
+              className="space-y-3"
               transition={{ duration: 0.6, ease: [0.4, 0, 0.2, 1] }}
             >
-              <div className="space-y-3">
-                <p className="text-sm font-semibold uppercase tracking-widest text-brand-primary">
-                  Dashboard
-                </p>
-                <h1 className={`font-semibold text-teal-900 transition-all duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] ${isDrawerOpen ? 'text-2xl lg:text-3xl' : 'text-4xl md:text-5xl'}`}>
-                  Your meal planning hub
-                </h1>
-                <AnimatePresence>
-                  {!isDrawerOpen && (
-                    <motion.p
-                      initial={{ opacity: 0, height: 0 }}
-                      animate={{ opacity: 1, height: 'auto' }}
-                      exit={{ opacity: 0, height: 0 }}
-                      transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
-                      className="max-w-2xl text-base text-gray-700 overflow-hidden"
-                    >
-                      Keep tabs on the meals you love, ingredients you have, and the groceries you still need.
-                    </motion.p>
-                  )}
-                </AnimatePresence>
-              </div>
-              {!isDrawerOpen && (
-                <div className="flex flex-wrap gap-3">
-                  <Button variant="outline" href="/">
-                    Back to home
-                  </Button>
-                </div>
-              )}
+              <p className="text-sm font-semibold uppercase tracking-widest text-brand-primary">
+                Dashboard
+              </p>
+              <h1 className={`font-semibold text-teal-900 transition-all duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] ${isDrawerOpen ? 'text-2xl lg:text-3xl' : 'text-4xl md:text-5xl'}`}>
+                Your meal planning hub
+              </h1>
+              <AnimatePresence>
+                {!isDrawerOpen && (
+                  <motion.p
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: 'auto' }}
+                    exit={{ opacity: 0, height: 0 }}
+                    transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
+                    className="max-w-2xl text-base text-gray-700 overflow-hidden"
+                  >
+                    Keep tabs on the meals you love, ingredients you have, and the groceries you still need.
+                  </motion.p>
+                )}
+              </AnimatePresence>
             </motion.div>
 
             {/* Main content grid - Chat with cards around it */}
             <div
-              className={`grid gap-6 transition-all duration-[600ms] ease-[cubic-bezier(0.4,0,0.2,1)] ${isDrawerOpen ? 'lg:grid-cols-1' : 'lg:grid-cols-3'}`}
+              className={`grid gap-4 transition-all duration-[600ms] ease-[cubic-bezier(0.4,0,0.2,1)] ${isDrawerOpen ? 'lg:grid-cols-1' : 'lg:grid-cols-3'}`}
             >
               {/* Left/Top - Chat Interface */}
               <div
@@ -130,7 +120,7 @@ const DashboardPage = () => {
                     ? undefined
                     : {
                         width: '100%',
-                        maxWidth: 'clamp(20rem, 35vw, 44rem)',
+                        maxWidth: 'clamp(20rem, 40vw, 52rem)',
                       }
                 }
               >

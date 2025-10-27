@@ -1,27 +1,44 @@
+'use client';
+
 import { HomeChatInterface } from "../components/home-chat-interface";
+import { useEffect, useState } from "react";
 
 export default function HomePage() {
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   return (
     <div className="flex flex-col bg-gray-50">
       <section className="pt-12 pb-12 sm:pt-20 sm:pb-16">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="mx-auto max-w-5xl text-center mb-8">
-            <h1 className="text-4xl sm:text-5xl font-bold text-teal-900 mb-4">
+            <h1 className={`text-4xl sm:text-5xl font-bold text-teal-900 mb-4 transition-all duration-700 ${
+              mounted ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4'
+            }`}>
               Your AI Meal Prep Assistant
             </h1>
-            <p className="text-lg sm:text-xl text-gray-700 max-w-3xl mx-auto">
+            <p className={`text-lg sm:text-xl text-gray-700 max-w-3xl mx-auto transition-all duration-700 delay-100 ${
+              mounted ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4'
+            }`}>
               Get personalized recipe suggestions, meal plans, and cooking tips powered by AI.
             </p>
           </div>
 
-          <div className="mx-auto max-w-4xl mb-8">
+          <div className={`mx-auto max-w-4xl mb-8 transition-all duration-700 delay-200 ${
+            mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
+          }`}>
             {/* Chat container with floating shadow effect */}
             <div className="h-[600px]">
               <HomeChatInterface />
             </div>
           </div>
 
-          <div className="text-center mb-8">
+          <div className={`text-center mb-8 transition-all duration-700 delay-300 ${
+            mounted ? 'opacity-100 scale-100' : 'opacity-0 scale-95'
+          }`}>
             <div className="inline-flex items-center gap-2 rounded-full bg-brand-primary/20 px-4 py-2 text-sm font-medium text-brand-primary border border-brand-primary/20">
               <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
@@ -36,7 +53,9 @@ export default function HomePage() {
       <section className="py-16 bg-white">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="mx-auto max-w-5xl">
-            <div className="text-center mb-12">
+            <div className={`text-center mb-12 transition-all duration-700 delay-400 ${
+              mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
+            }`}>
               <h2 className="text-3xl sm:text-4xl font-bold text-teal-900 mb-4">
                 How Savr Works
               </h2>
@@ -46,8 +65,10 @@ export default function HomePage() {
             </div>
 
             <div className="grid gap-8 md:grid-cols-3">
-              <div className="text-center">
-                <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-brand-secondary text-2xl font-bold text-brand-primary mx-auto">
+              <div className={`text-center transition-all duration-700 delay-500 ${
+                mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
+              }`}>
+                <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-brand-secondary text-2xl font-bold text-brand-primary mx-auto transition-transform duration-300 hover:scale-110">
                   1
                 </div>
                 <h3 className="mb-3 text-xl font-semibold text-teal-900">Chat with AI</h3>
@@ -56,8 +77,10 @@ export default function HomePage() {
                 </p>
               </div>
 
-              <div className="text-center">
-                <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-brand-secondary text-2xl font-bold text-brand-primary mx-auto">
+              <div className={`text-center transition-all duration-700 delay-600 ${
+                mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
+              }`}>
+                <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-brand-secondary text-2xl font-bold text-brand-primary mx-auto transition-transform duration-300 hover:scale-110">
                   2
                 </div>
                 <h3 className="mb-3 text-xl font-semibold text-teal-900">Get Your Plan</h3>
@@ -66,8 +89,10 @@ export default function HomePage() {
                 </p>
               </div>
 
-              <div className="text-center">
-                <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-brand-secondary text-2xl font-bold text-brand-primary mx-auto">
+              <div className={`text-center transition-all duration-700 delay-700 ${
+                mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
+              }`}>
+                <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-brand-secondary text-2xl font-bold text-brand-primary mx-auto transition-transform duration-300 hover:scale-110">
                   3
                 </div>
                 <h3 className="mb-3 text-xl font-semibold text-teal-900">Shop & Cook</h3>
@@ -84,7 +109,9 @@ export default function HomePage() {
       <section className="py-16 bg-gray-50">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="mx-auto max-w-6xl">
-            <div className="text-center mb-12">
+            <div className={`text-center mb-12 transition-all duration-700 delay-[800ms] ${
+              mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
+            }`}>
               <h2 className="text-3xl sm:text-4xl font-bold text-teal-900 mb-4">
                 Everything you need to master meal prep
               </h2>
@@ -95,7 +122,9 @@ export default function HomePage() {
 
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-2">
               {/* AI Chat Assistant */}
-              <div className="group rounded-xl border border-gray-200 bg-white p-8 shadow-sm hover:shadow-lg hover:border-brand-primary/30 hover:-translate-y-1 transition-all duration-300 ease-out">
+              <div className={`group rounded-xl border border-gray-200 bg-white p-8 shadow-sm hover:shadow-lg hover:border-brand-primary/30 hover:-translate-y-1 transition-all duration-700 delay-[900ms] ease-out ${
+                mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
+              }`}>
                 <div className="flex items-start gap-4 mb-4">
                   <div className="flex-shrink-0 group-hover:scale-110 transition-transform duration-300">
                     <svg className="h-10 w-10 text-brand-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -110,7 +139,9 @@ export default function HomePage() {
               </div>
 
               {/* Smart Pantry Management */}
-              <div className="group rounded-xl border border-gray-200 bg-white p-8 shadow-sm hover:shadow-lg hover:border-brand-primary/30 hover:-translate-y-1 transition-all duration-300 ease-out">
+              <div className={`group rounded-xl border border-gray-200 bg-white p-8 shadow-sm hover:shadow-lg hover:border-brand-primary/30 hover:-translate-y-1 transition-all duration-700 delay-[1000ms] ease-out ${
+                mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
+              }`}>
                 <div className="flex items-start gap-4 mb-4">
                   <div className="flex-shrink-0 group-hover:scale-110 transition-transform duration-300">
                     <svg className="h-10 w-10 text-brand-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -125,7 +156,9 @@ export default function HomePage() {
               </div>
 
               {/* Intelligent Grocery Lists */}
-              <div className="group rounded-xl border border-gray-200 bg-white p-8 shadow-sm hover:shadow-lg hover:border-brand-primary/30 hover:-translate-y-1 transition-all duration-300 ease-out">
+              <div className={`group rounded-xl border border-gray-200 bg-white p-8 shadow-sm hover:shadow-lg hover:border-brand-primary/30 hover:-translate-y-1 transition-all duration-700 delay-[1100ms] ease-out ${
+                mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
+              }`}>
                 <div className="flex items-start gap-4 mb-4">
                   <div className="flex-shrink-0 group-hover:scale-110 transition-transform duration-300">
                     <svg className="h-10 w-10 text-brand-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -140,7 +173,9 @@ export default function HomePage() {
               </div>
 
               {/* Personalized Experience */}
-              <div className="group rounded-xl border border-gray-200 bg-white p-8 shadow-sm hover:shadow-lg hover:border-brand-primary/30 hover:-translate-y-1 transition-all duration-300 ease-out">
+              <div className={`group rounded-xl border border-gray-200 bg-white p-8 shadow-sm hover:shadow-lg hover:border-brand-primary/30 hover:-translate-y-1 transition-all duration-700 delay-[1200ms] ease-out ${
+                mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
+              }`}>
                 <div className="flex items-start gap-4 mb-4">
                   <div className="flex-shrink-0 group-hover:scale-110 transition-transform duration-300">
                     <svg className="h-10 w-10 text-brand-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
