@@ -34,13 +34,26 @@ const fade = {
 const DashboardPage = () => {
   const [openDrawer, setOpenDrawer] = useState<string | null>(null);
   const { setIsDrawerOpen } = useDrawer();
+  const [chatOpacity, setChatOpacity] = useState(1);
 
   const handleCardClick = (cardId: string) => {
-    setOpenDrawer(cardId);
+    setChatOpacity(0);
+    setTimeout(() => {
+      setOpenDrawer(cardId);
+      setTimeout(() => {
+        setChatOpacity(1);
+      }, 100);
+    }, 300);
   };
 
   const handleCloseDrawer = () => {
-    setOpenDrawer(null);
+    setChatOpacity(0);
+    setTimeout(() => {
+      setOpenDrawer(null);
+      setTimeout(() => {
+        setChatOpacity(1);
+      }, 100);
+    }, 300);
   };
 
   const isDrawerOpen = openDrawer !== null;
@@ -59,72 +72,43 @@ const DashboardPage = () => {
 
   return (
     <div className="flex flex-col bg-gray-50 min-h-screen">
-      <motion.main
-        layout
+      <main
         className={`flex-1 w-full px-6 ${
           isDrawerOpen ? 'lg:w-[30%] lg:ml-0 py-6' : 'mx-auto max-w-7xl py-12'
         }`}
-        transition={{
-          layout: { duration: 0.6, ease: [0.4, 0, 0.2, 1] }
-        }}
       >
-        <motion.div
-          layout
-          className="space-y-12"
-          transition={{ duration: 0.6, ease: [0.4, 0, 0.2, 1] }}
-        >
-          <motion.div
-            className="space-y-12"
-            initial="hidden"
-            animate="visible"
-            variants={{ visible: { transition: { staggerChildren: 0.12 } } }}
-          >
-            <motion.div
-              variants={fade}
-              layout="position"
-              className="space-y-3"
-              transition={{ duration: 0.6, ease: [0.4, 0, 0.2, 1] }}
-            >
-              <p className="text-sm font-semibold uppercase tracking-widest text-brand-primary">
-                Dashboard
-              </p>
-              <h1 className={`font-semibold text-teal-900 transition-all duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] ${isDrawerOpen ? 'text-2xl lg:text-3xl' : 'text-4xl md:text-5xl'}`}>
-                Your meal planning hub
-              </h1>
-              <AnimatePresence>
-                {!isDrawerOpen && (
-                  <motion.p
-                    initial={{ opacity: 0, height: 0 }}
-                    animate={{ opacity: 1, height: 'auto' }}
-                    exit={{ opacity: 0, height: 0 }}
-                    transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
-                    className="max-w-2xl text-base text-gray-700 overflow-hidden"
-                  >
-                    Keep tabs on the meals you love, ingredients you have, and the groceries you still need.
-                  </motion.p>
-                )}
-              </AnimatePresence>
-            </motion.div>
+        <div>
+            <div className="mb-12">
+              <div className="space-y-3 transition-opacity duration-300" style={{ opacity: chatOpacity }}>
+                <p className="text-sm font-semibold uppercase tracking-widest text-brand-primary">
+                  Dashboard
+                </p>
+                <h1 className="font-semibold text-teal-900 text-4xl md:text-5xl">
+                  Your meal planning hub
+                </h1>
+                <p className="max-w-2xl text-base text-gray-700" style={{ visibility: isDrawerOpen ? 'hidden' : 'visible' }}>
+                  Keep tabs on the meals you love, ingredients you have, and the groceries you still need.
+                </p>
+              </div>
+            </div>
 
             {/* Main content grid - Chat with cards around it */}
-            <div
-              className={`grid gap-4 transition-all duration-[600ms] ease-[cubic-bezier(0.4,0,0.2,1)] ${isDrawerOpen ? 'lg:grid-cols-1' : 'lg:grid-cols-3'}`}
-            >
+            <div className={`grid gap-4 ${isDrawerOpen ? 'lg:grid-cols-1' : 'lg:grid-cols-3'}`}>
               {/* Left/Top - Chat Interface */}
               <div
-                className={`h-[600px] transition-all duration-[600ms] ease-[cubic-bezier(0.4,0,0.2,1)] ${
-                  isDrawerOpen ? '' : 'lg:col-span-2'
-                }`}
+                className={`h-[600px] ${isDrawerOpen ? '' : 'lg:col-span-2'}`}
                 style={
                   isDrawerOpen
-                    ? undefined
-                    : {
-                        width: '100%',
-                        maxWidth: 'clamp(20rem, 40vw, 52rem)',
-                      }
+                    ? { width: '100%', maxWidth: '100%' }
+                    : { width: '100%', maxWidth: 'clamp(20rem, 40vw, 52rem)' }
                 }
               >
-                <DashboardChatInterface />
+                <div
+                  className="h-full transition-opacity duration-300"
+                  style={{ opacity: chatOpacity }}
+                >
+                  <DashboardChatInterface />
+                </div>
               </div>
 
               {/* Right - Feature Cards - Hide on desktop when drawer is open */}
@@ -171,9 +155,8 @@ const DashboardPage = () => {
                 </div>
               )}
             </div>
-          </motion.div>
-        </motion.div>
-      </motion.main>
+        </div>
+      </main>
 
       {/* Drawers */}
       <FavoritesDrawer isOpen={openDrawer === 'favorites'} onClose={handleCloseDrawer} />
