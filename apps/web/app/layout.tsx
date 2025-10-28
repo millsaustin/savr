@@ -31,7 +31,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         <DrawerProvider>
           <div className="min-h-screen flex flex-col">
             <Navigation />
-            <main className="flex-1">
+            <main className="flex-1 flex flex-col">
               {children}
             </main>
             <Footer />

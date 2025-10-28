@@ -71,7 +71,7 @@ export function Drawer({ isOpen, onClose, title, children }: DrawerProps) {
               initial={{ opacity: 0, y: -20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.1, duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
-              className="flex items-center justify-between border-b border-gray-200 px-6 py-4 bg-white"
+              className="flex h-[calc(4rem+1px)] items-center justify-between border-b border-gray-200 px-6 bg-white"
             >
               <h2 className="text-2xl font-semibold text-teal-900">{title}</h2>
               <motion.button

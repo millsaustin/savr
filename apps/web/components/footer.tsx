@@ -6,8 +6,8 @@ import { Logo } from "./logo";
 export function Footer() {
   return (
     <footer className="border-t border-gray-200 bg-white">
-      <div className="mx-auto max-w-7xl px-6 py-12">
-        <div className="grid grid-cols-1 gap-8 md:grid-cols-3">
+      <div className="mx-auto max-w-7xl px-6 py-6">
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
           {/* Logo and description */}
           <div className="col-span-1 md:col-span-2">
             <Logo size="md" align="left" />
@@ -37,7 +37,7 @@ export function Footer() {
         </div>
 
         {/* Bottom section */}
-        <div className="mt-12 pt-8 border-t border-gray-200">
+        <div className="mt-6 pt-4 border-t border-gray-200">
           <div className="flex flex-col items-center justify-between gap-4 md:flex-row">
             <p className="text-sm text-gray-600">
               © {new Date().getFullYear()} Savr. All rights reserved.

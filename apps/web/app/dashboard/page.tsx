@@ -34,7 +34,9 @@ const fade = {
 const DashboardPage = () => {
   const [openDrawer, setOpenDrawer] = useState<string | null>(null);
   const { setIsDrawerOpen } = useDrawer();
-  const [chatOpacity, setChatOpacity] = useState(1);
+  const [chatOpacity, setChatOpacity] = useState(0);
+  const [mounted, setMounted] = useState(false);
+  const [hoveredCard, setHoveredCard] = useState<string | null>(null);
 
   const handleCardClick = (cardId: string) => {
     setChatOpacity(0);
@@ -43,7 +45,7 @@ const DashboardPage = () => {
       setTimeout(() => {
         setChatOpacity(1);
       }, 100);
-    }, 300);
+    }, 500);
   };
 
   const handleCloseDrawer = () => {
@@ -53,10 +55,16 @@ const DashboardPage = () => {
       setTimeout(() => {
         setChatOpacity(1);
       }, 100);
-    }, 300);
+    }, 500);
   };
 
   const isDrawerOpen = openDrawer !== null;
+
+  // Initial fade-in on mount
+  useEffect(() => {
+    setMounted(true);
+    setChatOpacity(1);
+  }, []);
 
   // Update context when drawer state changes
   useEffect(() => {
@@ -79,7 +87,7 @@ const DashboardPage = () => {
       >
         <div>
             <div className="mb-12">
-              <div className="space-y-3 transition-opacity duration-300" style={{ opacity: chatOpacity }}>
+              <div className="space-y-3 transition-opacity duration-500" style={{ opacity: chatOpacity }}>
                 <p className="text-sm font-semibold uppercase tracking-widest text-brand-primary">
                   Dashboard
                 </p>
@@ -104,8 +112,11 @@ const DashboardPage = () => {
                 }
               >
                 <div
-                  className="h-full transition-opacity duration-300"
-                  style={{ opacity: chatOpacity }}
+                  className="h-full transition-all duration-500"
+                  style={{
+                    opacity: chatOpacity,
+                    transform: mounted ? 'translateY(0)' : 'translateY(-20px)'
+                  }}
                 >
                   <DashboardChatInterface />
                 </div>
@@ -114,44 +125,122 @@ const DashboardPage = () => {
               {/* Right - Feature Cards - Hide on desktop when drawer is open */}
               {!isDrawerOpen && (
                 <div className="h-[600px] flex flex-col justify-center space-y-4">
-                  {cards.map((card) => (
-                    <motion.article
-                      key={card.title}
-                      variants={fade}
-                      onClick={() => handleCardClick(card.id)}
-                      whileHover={{
-                        scale: 1.02,
-                        y: -4,
-                        transition: { duration: 0.3, ease: [0.4, 0, 0.2, 1] }
-                      }}
-                      whileTap={{ scale: 0.98 }}
-                      className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm transition-all duration-300 ease-out hover:shadow-lg hover:border-brand-primary/40 cursor-pointer group flex flex-col justify-between"
-                    >
-                      <div>
-                        <h2 className="text-lg font-semibold text-teal-900 group-hover:text-brand-primary transition-colors duration-300">
-                          {card.title}
-                        </h2>
-                        <p className="mt-2 text-sm text-gray-700 leading-relaxed">{card.description}</p>
-                      </div>
-                      <div className="mt-4 flex items-center gap-2 text-xs uppercase tracking-widest text-brand-primary">
-                        <span>Open</span>
-                        <motion.svg
-                          className="h-4 w-4"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                          stroke="currentColor"
-                          animate={{ x: [0, 4, 0] }}
-                          transition={{
-                            duration: 1.5,
-                            repeat: Infinity,
-                            ease: "easeInOut"
-                          }}
-                        >
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                        </motion.svg>
-                      </div>
-                    </motion.article>
-                  ))}
+                  <motion.article
+                    onClick={() => handleCardClick('favorites')}
+                    onMouseEnter={() => setHoveredCard('favorites')}
+                    onMouseLeave={() => setHoveredCard(null)}
+                    initial={{ opacity: 0, x: 30 }}
+                    animate={{ opacity: 1, x: 0, scale: 1, y: 0 }}
+                    transition={{ type: "spring", stiffness: 400, damping: 25 }}
+                    whileHover={{
+                      scale: 1.02,
+                      y: -4
+                    }}
+                    whileTap={{ scale: 0.98 }}
+                    className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm hover:shadow-lg hover:border-brand-primary/40 cursor-pointer group flex flex-col justify-between"
+                  >
+                    <div>
+                      <h2 className="text-lg font-semibold text-teal-900 group-hover:text-brand-primary">
+                        Favorites
+                      </h2>
+                      <p className="mt-2 text-sm text-gray-700 leading-relaxed">Pin your go-to recipes and quick saves for busy weeknights. Organize meals into collections and quickly access the recipes you love most.</p>
+                    </div>
+                    <div className="mt-4 flex items-center gap-2 text-xs uppercase tracking-widest text-brand-primary">
+                      <span>Open</span>
+                      <motion.svg
+                        className="h-4 w-4"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                        animate={hoveredCard === 'favorites' ? { x: [0, 4, 0] } : { x: 0 }}
+                        transition={{
+                          duration: 0.6,
+                          repeat: hoveredCard === 'favorites' ? Infinity : 0,
+                          ease: "easeInOut"
+                        }}
+                      >
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                      </motion.svg>
+                    </div>
+                  </motion.article>
+
+                  <motion.article
+                    onClick={() => handleCardClick('pantry')}
+                    onMouseEnter={() => setHoveredCard('pantry')}
+                    onMouseLeave={() => setHoveredCard(null)}
+                    initial={{ opacity: 0, x: 30 }}
+                    animate={{ opacity: 1, x: 0, scale: 1, y: 0 }}
+                    transition={{ type: "spring", stiffness: 400, damping: 25 }}
+                    whileHover={{
+                      scale: 1.02,
+                      y: -4
+                    }}
+                    whileTap={{ scale: 0.98 }}
+                    className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm hover:shadow-lg hover:border-brand-primary/40 cursor-pointer group flex flex-col justify-between"
+                  >
+                    <div>
+                      <h2 className="text-lg font-semibold text-teal-900 group-hover:text-brand-primary">
+                        Pantry Manager
+                      </h2>
+                      <p className="mt-2 text-sm text-gray-700 leading-relaxed">See what ingredients you have on hand and track upcoming restocks. Monitor expiration dates and never let food go to waste again.</p>
+                    </div>
+                    <div className="mt-4 flex items-center gap-2 text-xs uppercase tracking-widest text-brand-primary">
+                      <span>Open</span>
+                      <motion.svg
+                        className="h-4 w-4"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                        animate={hoveredCard === 'pantry' ? { x: [0, 4, 0] } : { x: 0 }}
+                        transition={{
+                          duration: 0.6,
+                          repeat: hoveredCard === 'pantry' ? Infinity : 0,
+                          ease: "easeInOut"
+                        }}
+                      >
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                      </motion.svg>
+                    </div>
+                  </motion.article>
+
+                  <motion.article
+                    onClick={() => handleCardClick('grocery')}
+                    onMouseEnter={() => setHoveredCard('grocery')}
+                    onMouseLeave={() => setHoveredCard(null)}
+                    initial={{ opacity: 0, x: 30 }}
+                    animate={{ opacity: 1, x: 0, scale: 1, y: 0 }}
+                    transition={{ type: "spring", stiffness: 400, damping: 25 }}
+                    whileHover={{
+                      scale: 1.02,
+                      y: -4
+                    }}
+                    whileTap={{ scale: 0.98 }}
+                    className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm hover:shadow-lg hover:border-brand-primary/40 cursor-pointer group flex flex-col justify-between"
+                  >
+                    <div>
+                      <h2 className="text-lg font-semibold text-teal-900 group-hover:text-brand-primary">
+                        Grocery List
+                      </h2>
+                      <p className="mt-2 text-sm text-gray-700 leading-relaxed">Generate a smart list with estimated spend, store sections, and swaps. Track your shopping progress and stay within budget effortlessly.</p>
+                    </div>
+                    <div className="mt-4 flex items-center gap-2 text-xs uppercase tracking-widest text-brand-primary">
+                      <span>Open</span>
+                      <motion.svg
+                        className="h-4 w-4"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                        animate={hoveredCard === 'grocery' ? { x: [0, 4, 0] } : { x: 0 }}
+                        transition={{
+                          duration: 0.6,
+                          repeat: hoveredCard === 'grocery' ? Infinity : 0,
+                          ease: "easeInOut"
+                        }}
+                      >
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                      </motion.svg>
+                    </div>
+                  </motion.article>
                 </div>
               )}
             </div>

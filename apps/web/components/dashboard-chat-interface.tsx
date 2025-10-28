@@ -271,13 +271,19 @@ export function DashboardChatInterface({ hideIntro = false }: DashboardChatInter
                 className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-w-2xl mx-auto"
               >
                 {quickActions.map((action) => (
-                  <button
+                  <motion.button
                     key={action.label}
                     onClick={() => handleQuickAction(action.prompt)}
-                    className="h-auto py-3 px-4 text-left border border-gray-200 rounded-lg hover:border-brand-primary hover:bg-brand-secondary/10 transition text-sm font-medium text-gray-700 hover:text-brand-primary"
+                    whileHover={{
+                      scale: 1.02,
+                      y: -2
+                    }}
+                    whileTap={{ scale: 0.98 }}
+                    transition={{ type: "spring", stiffness: 400, damping: 25 }}
+                    className="h-auto py-3 px-4 text-left border border-gray-200 rounded-lg hover:border-brand-primary hover:bg-brand-secondary/10 text-sm font-medium text-gray-700 hover:text-brand-primary"
                   >
                     {action.label}
-                  </button>
+                  </motion.button>
                 ))}
               </motion.div>
             </motion.div>

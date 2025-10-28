@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback, useRef } from 'react';
+import { useState, useCallback, useRef, useEffect } from 'react';
 import Link from 'next/link';
 import Button from './ui/button';
 import { Logo } from './logo';
@@ -38,7 +38,22 @@ export function HomeChatInterface() {
   const [status, setStatus] = useState<ResponseStatus>({ state: 'idle' });
   const [favoritingRecipe, setFavoritingRecipe] = useState<string | null>(null);
   const [favoritedRecipes, setFavoritedRecipes] = useState<Set<string>>(new Set());
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    // Check authentication status
+    fetch('/api/auth/check')
+      .then(res => res.ok ? res.json() : null)
+      .then(data => {
+        if (data?.authenticated) {
+          setIsAuthenticated(true);
+        }
+      })
+      .catch(() => {
+        setIsAuthenticated(false);
+      });
+  }, []);
 
   const handleFavoriteRecipe = useCallback(async (recipe: Recipe) => {
     setFavoritingRecipe(recipe.id);
@@ -150,22 +165,24 @@ export function HomeChatInterface() {
 
   return (
     <div className="flex flex-col h-full bg-white rounded-2xl border border-gray-200 overflow-hidden" style={{ boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.35), 0 0 0 1px rgba(0, 0, 0, 0.05)' }}>
-      {/* Auth required banner */}
-      <div className="bg-yellow-50 border-b border-yellow-200 p-3 text-center">
-        <p className="text-sm text-yellow-900">
-          <svg className="inline h-4 w-4 mr-1 text-yellow-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-          </svg>
-          <strong>Free account required</strong> to generate AI recipes.{' '}
-          <Link href="/signup" className="font-semibold underline hover:text-brand-primary">
-            Sign up in 30 seconds
-          </Link>
-          {' '}or{' '}
-          <Link href="/login" className="font-semibold underline hover:text-brand-primary">
-            Sign in
-          </Link>
-        </p>
-      </div>
+      {/* Auth required banner - only show when not authenticated */}
+      {!isAuthenticated && (
+        <div className="bg-yellow-50 border-b border-yellow-200 p-3 text-center">
+          <p className="text-sm text-yellow-900">
+            <svg className="inline h-4 w-4 mr-1 text-yellow-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+            </svg>
+            <strong>Free account required</strong> to generate AI recipes.{' '}
+            <Link href="/signup" className="font-semibold underline hover:text-brand-primary">
+              Sign up in 30 seconds
+            </Link>
+            {' '}or{' '}
+            <Link href="/login" className="font-semibold underline hover:text-brand-primary">
+              Sign in
+            </Link>
+          </p>
+        </div>
+      )}
 
       {/* Messages area */}
       <div className="flex-1 overflow-y-auto p-4">

@@ -99,7 +99,7 @@
 
 html {
   scroll-behavior: smooth;
-  overflow-y: scroll;
+  overflow-y: auto;
 }
 
 @layer base {

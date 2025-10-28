@@ -5,9 +5,22 @@ import { useEffect, useState } from "react";
 
 export default function HomePage() {
   const [mounted, setMounted] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   useEffect(() => {
     setMounted(true);
+
+    // Check authentication status
+    fetch('/api/auth/check')
+      .then(res => res.ok ? res.json() : null)
+      .then(data => {
+        if (data?.authenticated) {
+          setIsAuthenticated(true);
+        }
+      })
+      .catch(() => {
+        setIsAuthenticated(false);
+      });
   }, []);
 
   return (
@@ -36,16 +49,18 @@ export default function HomePage() {
             </div>
           </div>
 
-          <div className={`text-center mb-8 transition-all duration-700 delay-300 ${
-            mounted ? 'opacity-100 scale-100' : 'opacity-0 scale-95'
-          }`}>
-            <div className="inline-flex items-center gap-2 rounded-full bg-brand-primary/20 px-4 py-2 text-sm font-medium text-brand-primary border border-brand-primary/20">
-              <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
-              </svg>
-              <span>Try it free • No credit card required</span>
+          {!isAuthenticated && (
+            <div className={`text-center mb-8 transition-all duration-700 delay-300 ${
+              mounted ? 'opacity-100 scale-100' : 'opacity-0 scale-95'
+            }`}>
+              <div className="inline-flex items-center gap-2 rounded-full bg-brand-primary/20 px-4 py-2 text-sm font-medium text-brand-primary border border-brand-primary/20">
+                <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
+                </svg>
+                <span>Try it free • No credit card required</span>
+              </div>
             </div>
-          </div>
+          )}
         </div>
       </section>
 
